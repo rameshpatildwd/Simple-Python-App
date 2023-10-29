@@ -1,8 +1,9 @@
 #!/bin/bash
 set -e
 
-# Pull the Docker image from Docker Hub
-docker pull docker push rameshpatildwd/simple-python-flask-app:latest
+containerID=$(docker ps | awk -F" " '{print $1}')
 
-# Run the Docker image as a container
-docker run -d -p 5000:5000 rameshpatildwd/simple-python-flask-app:latest
+# Stop the running container (if any)
+echo "Stopping running container"
+
+docker rm -f $containerID
