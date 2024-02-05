@@ -1,11 +1,5 @@
 version: 0.2
 
-env:
-  parameter-store:
-     DOCKER_REGISTRY_USERNAME: "docker-username"
-     DOCKER_REGISTRY_PASSWORD: "docker-password"
-     DOCKER_REGISTRY_URL: "docker-url"
-
 phases:
   install:
     runtime-versions:
@@ -14,13 +8,18 @@ phases:
   pre_build:
     commands:
       - pip install -r requirements.txt
+      - echo Logging in to Amazon ECR...
+      - aws --version
+      - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 973434859695.dkr.ecr.us-east-1.amazonaws.com
+      - REPOSITORY_URI=973434859695.dkr.ecr.us-east-1.amazonaws.com/demo-repository
       
   build:
     commands:
-      - echo "Building docker Image"
-      - echo "$DOCKER_REGISTRY_PASSWORD" | docker login -u "$DOCKER_REGISTRY_USERNAME" --password-stdin "$DOCKER_REGISTRY_URL"
-      - docker build -t "$DOCKER_REGISTRY_URL/$DOCKER_REGISTRY_USERNAME/simple-python-flask-app:latest" .
-      - docker push "$DOCKER_REGISTRY_URL/$DOCKER_REGISTRY_USERNAME/simple-python-flask-app:latest"
+      - echo Build started on `date`
+      - echo Building the Docker image...
+      - docker build -t demo-repository .
+      - docker tag demo-repository:latest 973434859695.dkr.ecr.us-east-1.amazonaws.com/demo-repository:latest
+      - docker push 973434859695.dkr.ecr.us-east-1.amazonaws.com/demo-repository:latest
       
   post_build:
     commands:
